@@ -7,7 +7,6 @@ import Sort from "./Sort";
 function AccountContainer() {
   const [transactions,setTransactions] = useState([])
   const [search,setSearch] = useState("")
-  // console.log(search)
 
   useEffect(()=>{
     fetch("http://localhost:6001/transactions")
@@ -26,21 +25,30 @@ function AccountContainer() {
     .then(r=>r.json())
     .then(data=>setTransactions([...transactions,data]))
   }
-  
-  // Sort function here
-  function onSort(sortBy){
-    
+
+  function onSort(sortBy) {
+    const sortedTransactions = [...transactions].sort((a, b) =>
+      a[sortBy].localeCompare(b[sortBy])
+    );
+
+    setTransactions(sortedTransactions);
   }
 
-  // Filter using search here and pass new variable down
-  
+  const filteredTransactions = transactions.filter((transaction) => {
+    const searchTerm = search.toLowerCase();
+
+    return (
+      transaction.description.toLowerCase().includes(searchTerm) ||
+      transaction.category.toLowerCase().includes(searchTerm)
+    );
+  });
 
   return (
     <div>
       <Search setSearch={setSearch}/>
       <AddTransactionForm postTransaction={postTransaction}/>
       <Sort onSort={onSort}/>
-      <TransactionsList transactions={transactions} />
+      <TransactionsList transactions={filteredTransactions} />
     </div>
   );
 }
